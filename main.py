@@ -1,5 +1,8 @@
+import field.vector_field
+
+
 from config.input_handler import load_config, user_override, save_config
-from field.field import make_field_from_expr
+from field.vector_field import make_field_from_expr
 from integrator.integrator import simulate
 from ml.ml_model import train_model, predict_trajectory
 from visualizer.animator import animate

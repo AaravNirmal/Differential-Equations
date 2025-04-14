@@ -1,0 +1,11 @@
+
+---
+
+### ✅ `requirements.txt`
+```txt
+numpy
+scipy
+matplotlib
+scikit-learn
+torch
+sympy

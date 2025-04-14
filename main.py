@@ -1,35 +1,33 @@
-import field.vector_field
-
-
 from config.input_handler import load_config, user_override, save_config
 from field.vector_field import make_field_from_expr
 from integrator.integrator import simulate
-from ml.ml_model import train_model, predict_trajectory
+from reducer.reducer import reduce_to_2d
+from visualizer.plotter import plot_2d
 from visualizer.animator import animate
-from sklearn.decomposition import PCA
+from utils.save_results import save_output
 import numpy as np
 
-def prepare_ml_data(X):
-    return X[:-1], X[1:]
 
 def main():
+    # Load and optionally override config
     config = load_config()
     config = user_override(config)
+    save_config(config)
 
+    # Build vector field from expressions
     field = make_field_from_expr(config["field_exprs"])
+
+    # Simulate particle trajectory
     X_real = simulate(field, config["initial_state"], config["T"], config["dt"])
 
-    X_train, Y_train = prepare_ml_data(X_real)
-    model = train_model(X_train, Y_train, config["dimension"],
-                        config["ml"]["epochs"], config["ml"]["learning_rate"])
+    # Reduce high-D trajectory to 2D for visualization
+    X_real_2D = reduce_to_2d(X_real)
 
-    X_pred = predict_trajectory(model, X_real[0], len(X_real) - 1)
+    # Save results: .npy, .csv, plot
+    save_output(X_real, X_real_2D, tag="real")
 
-    pca = PCA(n_components=2)
-    X_real_2D = pca.fit_transform(X_real)
-    X_pred_2D = pca.transform(X_pred)
-
-    animate(X_real_2D, X_pred_2D)
+    # Visualize animated 2D trajectory
+    animate(X_real_2D)
 
 if __name__ == "__main__":
     main()

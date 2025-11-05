@@ -1,7 +1,17 @@
-from scipy.integrate import solve_ivp
 import numpy as np
 
-def simulate(field, x0, T, dt):
-    t_eval = np.arange(0, T, dt)
-    sol = solve_ivp(field, [0, T], x0, t_eval=t_eval)
-    return sol.y.T
+from integrator import rk_solver
+
+class RungeKutta4Integrator:
+    
+    def __init__(self, dt):
+        self.dt = dt
+        
+    def solve(self, field_object, x0, T):
+        trajectory = rk_solver.solve(
+            field_object, 
+            x0, 
+            T, 
+            self.dt
+        )
+        return trajectory

@@ -1,12 +1,16 @@
 import numpy as np
 import sympy as sp
 
-def make_field_from_expr(exprs):
-    n = len(exprs)
-    vars = [sp.Symbol(f'x{i}') for i in range(n)]
-    parsed_exprs = [sp.sympify(e) for e in exprs]
-    lambdas = [sp.lambdify(vars, expr, modules='numpy') for expr in parsed_exprs]
+class VectorField:
+    def __init__(self, expressed_string, params=None):
+        self.n = len(expressed_string)
+        self.state_vars = [sp.Symbol(f'x{i}') for i in range(self.n)] 
+        all_symbols = self.state_vars.copy()
+        parsed_expressions = [sp.sympify(ex) for ex in expressed_string]  
+        self.derivative = sp.Matrix(parsed_expressions)
 
-    def field(t, x):
-        return np.array([f(*x) for f in lambdas])
-    return field
+        self.compiled_function = sp.lambdify(all_symbols, self.derivative, modules='numpy', dummify=True)  
+
+    def __call__(self, x, t):
+        return np.squeeze(self.compiled_function(*x))
+        
